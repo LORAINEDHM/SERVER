@@ -40,14 +40,17 @@ RUN apt install -y nginx \
 #RUN rm -rf /var/cache/apt/lists/*
 
 # SETUP NGINX
+
+WORKDIR /srcs
+#COPY srcs/nginx-conf /etc/nginx/nginx-conf
 #The way nginx and its modules work is determined in the configuration file. 
 #By default, the configuration file is named nginx.conf and placed in the directory /usr/local/nginx/conf, /etc/nginx, or /usr/local/etc/nginx.
 # example de fichier config dans /etc/nginx/sites-enabled/default
-#RUN rm /etc/nginx/sites-enabled/default 
-#COPY srcs/nginx.conf /etc/nginx/sites-available/localhost
-#COPY srcs/nginx.conf /etc/nginx/sites-enabled/default
+COPY srcs/nginx-conf /etc/nginx/sites-available/localhost
+RUN rm /etc/nginx/sites-enabled/default
+COPY srcs/nginx-conf /etc/nginx/sites-enabled/default
 # activer l'hote virtuel disponible nouvelle cree en realisant un lien synmbolique 
-#RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
+RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
 #WORKDIR /etc
 #RUN cp /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
 
@@ -112,22 +115,25 @@ RUN apt install -y nginx \
 
 #RUN service nginx restart
 # commande pour garder nginx au 1er plan :
-CMD ["nginx", "-g", "daemon off;"]
+#CMD ["nginx", "-g", "daemon off;"]
 
-EXPOSE 80
 
 # Je copie successivement les configurations et scripts de mon système hôte vers mon image
 # COPY nginx.conf /etc/nginx/nginx.conf
 
-# COPY service_start.sh /home/docker/script/service_start.sh
+#COPY srcs/start.sh /home/docker/script/start.sh
 # J'applique les droits pour exécuter mon script
-# RUN chmod 744 /home/docker/script/service_start.sh
+#RUN chmod 744 /home/docker/script/start.sh
 # Je définie un point d'entrée : le premier script qui va se lancer au démarrage du container
 
-#ENTRYPOINT /home/docker/script/service_start.sh
+#NTRYPOINT /home/docker/script/service_start.sh
 # Le dossier dans lequel je serai quand j'exécuterai un nouveau container sera WORKDIR
 # WORKDIR /home/docker
 
+#CMD ["srcs/start.sh"]
+CMD bash start.sh
 
 #-p 80:80 => on redirige un port du conteneur vers un port de ma machine locale
 # pour connaitre l'adresse IP localhost : docker-machine ip
+
+EXPOSE 80
