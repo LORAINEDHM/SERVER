@@ -1,6 +1,3 @@
-# J'indique l'image de base
-FROM debian:buster
-
 WORKDIR /srcs
 # J'indique qui detient le dockerfile
 LABEL lduhamel="lduhamel@student.s19.be"
@@ -31,11 +28,9 @@ RUN apt install -y php-fpm php-common php-mbstring php-xmlrpc php-soap php-gd ph
 RUN apt install -y libnss3-tools
 RUN wget https://github.com/FiloSottile/mkcert/releases/download/v1.1.2/mkcert-v1.1.2-linux-amd64 \
     && mv mkcert-v1.1.2-linux-amd64 mkcert \
-#    && chmod +x autorise l'exécution du fichier en tant que programme \
+    # chmod +x autorise l'exécution du fichier en tant que programme
     && chmod +x mkcert \
-   && cp mkcert /usr/local/bin/ \
-   && mkcert -install \
-   && mkcert localhost
+    && cp mkcert /usr/local/bin/
 
 
 
@@ -43,11 +38,11 @@ RUN wget https://github.com/FiloSottile/mkcert/releases/download/v1.1.2/mkcert-v
 
 # SETUP NGINX
 # example de fichier config dans /etc/nginx/sites-enabled/default
-COPY srcs/nginx-config /etc/nginx/sites-available/localhost
-#RUN rm /etc/nginx/sites-enabled/default 
-#COPY /srcs/nginx-config /etc/nginx/sites-enabled/
+COPY srcs/nginx-config /etc/nginx/sites-available/
+RUN unlink /etc/nginx/sites-enabled/default
+RUN rm /etc/nginx/sites-enabled/default 
 # activer l'hote virtuel disponible nouvelle cree en realisant un lien synmbolique 
-RUN ln -sf /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
+#RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
 #WORKDIR /etc
 
 #RUN rm -rf /var/cache/apt/lists/*
@@ -71,21 +66,18 @@ RUN rm latest.tar.gz
 # SETUP MYSQL
 #RUN mysql -u root permet de se connecter au shell mysql, pour ensuite creer la database
 RUN service mysql start \
-&& mysql -u root -p \
+&& mysql -u root \
 #&& echo database.sql
 && echo "CREATE DATABASE wordpress;" | mysql -u root \
 && echo "GRANT ALL PRIVILEGES ON wordpress.* TO 'root'@'localhost';" | mysql -u root \
 && echo "FLUSH PRIVILEGES;" | mysql -u root 
-#&& echo "EXIT;" | mysql -u root 
 #&& echo "update mysql.user set plugin = 'mysql_native_password' where user='root';" | mysql -u root
 
 #ALLOW NGINX USER
 RUN chown -R www-data:www-data /var/www/*
 #RUN chmod -R 755 /var/www/*
-RUN chmod +x /var/www/*
 
-EXPOSE 80 443
-
+EXPOSE 80
 
 COPY ./srcs/start.sh /var/
 
@@ -117,7 +109,7 @@ CMD bash /var/start.sh
 
 
 # Je copie successivement les configurations et scripts de mon système hôte vers mon image
-# COPY nginx.conf /etc/nginx/ls
+# COPY nginx.conf /etc/nginx/nginx.conf
 
 # COPY service_start.sh /home/docker/script/service_start.sh
 # J'applique les droits pour exécuter mon script
