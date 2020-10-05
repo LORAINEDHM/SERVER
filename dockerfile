@@ -46,31 +46,34 @@ RUN wget https://github.com/FiloSottile/mkcert/releases/download/v1.1.2/mkcert-v
 #COPY srcs/nginx-config /etc/nginx/sites-available/localhost
 COPY srcs/nginx-config /etc/nginx/sites-available/default
 #RUN rm /etc/nginx/sites-enabled/default 
-COPY /srcs/nginx-config /etc/nginx/sites-enabled/default
+#COPY /srcs/nginx-config /etc/nginx/sites-enabled/default
 # activer l'hote virtuel disponible nouvelle cree en realisant un lien synmbolique 
-#RUN ln -sf /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
+#RUN ln -sf /etc/nginx/sites-available/lolo /etc/nginx/sites-enabled/lolo
 #WORKDIR /etc
 
 #RUN rm -rf /var/cache/apt/lists/*
 
 # INSTALL PHPMYADMIN
-WORKDIR /var/www/html/phpmyadmin
+WORKDIR /var/www
 RUN wget https://files.phpmyadmin.net/phpMyAdmin/4.9.0.1/phpMyAdmin-4.9.0.1-all-languages.tar.gz \
     && tar xvf phpMyAdmin-4.9.0.1-all-languages.tar.gz \
-    && rm phpMyAdmin-4.9.0.1-all-languages.tar.gz
-    #&& mv phpMyAdmin-4.9.0.1-all-languages/ /var/www/phpmyadmin
+    && rm phpMyAdmin-4.9.0.1-all-languages.tar.gz \
+    && mv phpMyAdmin-4.9.0.1-all-languages/ /var/www/phpmyadmin
 # config phpmyadmin => copier fichier de configuration minimal "config.sample.inc.php" situe dans var/www/phpmyadmin
 # et le mettre dans un nouveau fichier cree (ici config.inc.php), en autorisant "nopassword".
-COPY /srcs/config.inc.php/ var/www/html/phpmyadmin
+COPY /srcs/config.inc.php/ /phpmyadmin
 
 # INSTALL WORDPRESS
-RUN cd /var/www/html
+#WORKDIR /var/www
+#WORKDIR /var/www/wordpress
 RUN wget https://wordpress.org/latest.tar.gz
 RUN tar -xvzf latest.tar.gz
 RUN rm latest.tar.gz
-
+COPY /srcs/wp-config.php/ /wordpress
 # SETUP MYSQL
-#RUN mysql -u root permet de se connecter au shell mysql, pour ensuite creer la database
+#RUN mysql -u root permet de se connecter au shell mysql, pour ensuite creer la database\
+COPY ./srcs/database.sql .
+RUN ls
 RUN service mysql start \
 && cat database.sql | mysql -u root -p 
 #&& echo database.sql

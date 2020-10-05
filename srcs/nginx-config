@@ -20,10 +20,12 @@ server {
 
 		server_name lolo www.lolo;
 
-		root /var/www/html;
+		root /var/www;
 
 		autoindex on;
 		index index.html index.htm index.nginx-debian.html index.php;
+		#index /var/www/html/phpmyadmin/wordpress/index.php
+		#index index.html
 
 		# Dans ce bloc de serveur, les deux répertoires contenant les images et documents HTML doivent être indiqués :
 		location / {
