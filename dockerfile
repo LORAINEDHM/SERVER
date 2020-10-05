@@ -43,11 +43,12 @@ RUN wget https://github.com/FiloSottile/mkcert/releases/download/v1.1.2/mkcert-v
 
 # SETUP NGINX
 # example de fichier config dans /etc/nginx/sites-enabled/default
-COPY srcs/nginx-config /etc/nginx/sites-available/localhost
+#COPY srcs/nginx-config /etc/nginx/sites-available/localhost
+COPY srcs/nginx-config /etc/nginx/sites-available/default
 #RUN rm /etc/nginx/sites-enabled/default 
-#COPY /srcs/nginx-config /etc/nginx/sites-enabled/
+COPY /srcs/nginx-config /etc/nginx/sites-enabled/default
 # activer l'hote virtuel disponible nouvelle cree en realisant un lien synmbolique 
-RUN ln -sf /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
+#RUN ln -sf /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
 #WORKDIR /etc
 
 #RUN rm -rf /var/cache/apt/lists/*
@@ -60,7 +61,7 @@ RUN wget https://files.phpmyadmin.net/phpMyAdmin/4.9.0.1/phpMyAdmin-4.9.0.1-all-
     #&& mv phpMyAdmin-4.9.0.1-all-languages/ /var/www/phpmyadmin
 # config phpmyadmin => copier fichier de configuration minimal "config.sample.inc.php" situe dans var/www/phpmyadmin
 # et le mettre dans un nouveau fichier cree (ici config.inc.php), en autorisant "nopassword".
-COPY /srcs/config.inc.php/ var/www/phpmyadmin
+COPY /srcs/config.inc.php/ var/www/html/phpmyadmin
 
 # INSTALL WORDPRESS
 RUN cd /var/www/html
@@ -71,11 +72,11 @@ RUN rm latest.tar.gz
 # SETUP MYSQL
 #RUN mysql -u root permet de se connecter au shell mysql, pour ensuite creer la database
 RUN service mysql start \
-&& mysql -u root -p \
+&& cat database.sql | mysql -u root -p 
 #&& echo database.sql
-&& echo "CREATE DATABASE wordpress;" | mysql -u root \
-&& echo "GRANT ALL PRIVILEGES ON wordpress.* TO 'root'@'localhost';" | mysql -u root \
-&& echo "FLUSH PRIVILEGES;" | mysql -u root 
+#&& echo "CREATE DATABASE wordpress;" | mysql -u root \
+#&& echo "GRANT ALL PRIVILEGES ON wordpress.* TO 'root'@'localhost';" | mysql -u root \
+#&& echo "FLUSH PRIVILEGES;" | mysql -u root 
 #&& echo "EXIT;" | mysql -u root 
 #&& echo "update mysql.user set plugin = 'mysql_native_password' where user='root';" | mysql -u root
 
