@@ -72,7 +72,7 @@ RUN rm latest.tar.gz
 COPY /srcs/wp-config.php/ /wordpress
 # SETUP MYSQL
 #RUN mysql -u root permet de se connecter au shell mysql, pour ensuite creer la database\
-COPY ./srcs/database.sql .
+COPY ./srcs/database.sql /wordpress
 RUN ls
 RUN service mysql start \
 && mysql -u root -p \
