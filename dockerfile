@@ -61,7 +61,7 @@ RUN wget https://files.phpmyadmin.net/phpMyAdmin/4.9.0.1/phpMyAdmin-4.9.0.1-all-
     && mv phpMyAdmin-4.9.0.1-all-languages/ /var/www/phpmyadmin
 # config phpmyadmin => copier fichier de configuration minimal "config.sample.inc.php" situe dans var/www/phpmyadmin
 # et le mettre dans un nouveau fichier cree (ici config.inc.php), en autorisant "nopassword".
-COPY /srcs/config.inc.php/ /phpmyadmin
+COPY /srcs/config.inc.php/ /var/www/phpmyadmin
 
 # INSTALL WORDPRESS
 #WORKDIR /var/www
