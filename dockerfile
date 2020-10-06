@@ -23,8 +23,6 @@ RUN apt install -y mariadb-server
 
 # INSTALL PHP
 RUN apt install -y php-fpm php-common php-mbstring php-xmlrpc php-soap php-gd php-xml php-intl php-mysql php-cli php-ldap php-zip php-curl 
-   # && service php7.3-fpm start 
-  # && enable php7.3-fpm
 
 # INSTALL MKCERT CERTIFICATE GENERATOR 
 # package "certutil" necessaire pour generer certificats ssl avec mkcert
@@ -37,21 +35,9 @@ RUN wget https://github.com/FiloSottile/mkcert/releases/download/v1.1.2/mkcert-v
    && mkcert -install \
    && mkcert localhost
 
-
-
-#RUN rm -rf /var/cache/apt/lists/*
-
 # SETUP NGINX
 # example de fichier config dans /etc/nginx/sites-enabled/default
-#COPY srcs/nginx-config /etc/nginx/sites-available/localhost
 COPY srcs/nginx-config /etc/nginx/sites-available/default
-#RUN rm /etc/nginx/sites-enabled/default 
-#COPY /srcs/nginx-config /etc/nginx/sites-enabled/default
-# activer l'hote virtuel disponible nouvelle cree en realisant un lien synmbolique 
-#RUN ln -sf /etc/nginx/sites-available/lolo /etc/nginx/sites-enabled/lolo
-#WORKDIR /etc
-
-#RUN rm -rf /var/cache/apt/lists/*
 
 # INSTALL PHPMYADMIN
 WORKDIR /var/www
@@ -60,20 +46,17 @@ RUN wget https://files.phpmyadmin.net/phpMyAdmin/4.9.0.1/phpMyAdmin-4.9.0.1-all-
     && rm phpMyAdmin-4.9.0.1-all-languages.tar.gz \
     && mv phpMyAdmin-4.9.0.1-all-languages/ /var/www/phpmyadmin
 # config phpmyadmin => copier fichier de configuration minimal "config.sample.inc.php" situe dans var/www/phpmyadmin
-# et le mettre dans un nouveau fichier cree (ici config.inc.php), en autorisant "nopassword".
+# et le mettre dans un nouveau fichier cree (ici config.inc.php).
 COPY /srcs/config.inc.php/ /var/www/phpmyadmin
 
 # INSTALL WORDPRESS
-#WORKDIR /var/www
-#WORKDIR /var/www/wordpress
 RUN wget https://wordpress.org/latest.tar.gz
 RUN tar -xvzf latest.tar.gz
 RUN rm latest.tar.gz
 COPY /srcs/wp-config.php/ /wordpress
+
 # SETUP MYSQL
 #RUN mysql -u root permet de se connecter au shell mysql, pour ensuite creer la database\
-COPY ./srcs/database.sql /wordpress
-RUN ls
 RUN service mysql start \
 && mysql -u root -p \
 && echo "CREATE DATABASE wordpress;" | mysql -u root \
@@ -83,49 +66,10 @@ RUN service mysql start \
 
 #ALLOW NGINX USER
 RUN chown -R www-data:www-data /var/www/*
-#RUN chmod -R 755 /var/www/*
 RUN chmod +x /var/www/*
 
 EXPOSE 80 443
 
-
 COPY ./srcs/start.sh /var/
 
-#RUN service php7.3-fpm start
-#RUN service nginx restart
-#RUN service mysql start
 CMD bash /var/start.sh
-
-#RUN service mysql restart
-#RUN service nginx restart
-
-# je verifie la version installee (facultatif)
-#RUN sudo nginx -v
-
-# creation port (attention, ne pas preciser port hote et port dest type 80:80 sinon on ne pourra pas lancer 2 containers en meme temps)
-#EXPOSE 80
-
-# Le service nginx n'est pas démarré après l'installation. Vous pouvez taper la commande ci-dessous pour le faire manuellement. 
-# Mais sachez qu'au prochain reboot de Debian, nginx démarrera automatiquement.
-#nRUN sudo service nginx start
-
-
-#RUN apt-get -y install mariadb-server
-
-#RUN apt-get -y install phpmyadmin/phpmyadmin
-
-# commande pour garder nginx au 1er plan :
-#CMD ["nginx", "-g", "daemon off;"]
-
-
-# Je copie successivement les configurations et scripts de mon système hôte vers mon image
-# COPY nginx.conf /etc/nginx/ls
-
-# COPY service_start.sh /home/docker/script/service_start.sh
-# J'applique les droits pour exécuter mon script
-# RUN chmod 744 /home/docker/script/service_start.sh
-# Je définie un point d'entrée : le premier script qui va se lancer au démarrage du container
-
-#ENTRYPOINT /home/docker/script/service_start.sh
-# Le dossier dans lequel je serai quand j'exécuterai un nouveau container sera WORKDIR
-# WORKDIR /home/docker
