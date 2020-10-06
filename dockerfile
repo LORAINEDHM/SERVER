@@ -75,13 +75,11 @@ COPY /srcs/wp-config.php/ /wordpress
 COPY ./srcs/database.sql .
 RUN ls
 RUN service mysql start \
-&& cat database.sql | mysql -u root -p 
-#&& echo database.sql
-#&& echo "CREATE DATABASE wordpress;" | mysql -u root \
-#&& echo "GRANT ALL PRIVILEGES ON wordpress.* TO 'root'@'localhost';" | mysql -u root \
-#&& echo "FLUSH PRIVILEGES;" | mysql -u root 
-#&& echo "EXIT;" | mysql -u root 
-#&& echo "update mysql.user set plugin = 'mysql_native_password' where user='root';" | mysql -u root
+&& mysql -u root -p \
+&& echo "CREATE DATABASE wordpress;" | mysql -u root \
+&& echo "CREATE USER 'user42'@'localhost' IDENTIFIED BY 'password';" | mysql -u root \
+&& echo "GRANT ALL PRIVILEGES ON wordpress.* TO 'user42'@'localhost' IDENTIFIED BY 'password';" | mysql -u root \
+&& echo "FLUSH PRIVILEGES;" | mysql -u root 
 
 #ALLOW NGINX USER
 RUN chown -R www-data:www-data /var/www/*
